@@ -21,6 +21,13 @@ struct RGB {
     uchar B;
 };
 
+class FileIOException : public exception {
+public:
+    const char* what() const _NOEXCEPT override {
+        return "Error while trying to read file or write to file";
+    }
+};
+
 class PNMFile {
 private:
     short format;
@@ -94,18 +101,34 @@ private:
         }
     }
 
+    void mirrorVerticalP5() {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width / 2; j++) {
+                swap(dataP5[i * width + j], dataP5[i * width + width - j - 1]);
+            }
+        }
+    }
+
+    void mirrorVerticalP6() {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width / 2; j++) {
+                swap(dataP6[i * width + j], dataP6[i * width + width - j - 1]);
+            }
+        }
+    }
+
 public:
 
     PNMFile() = default;
 
     PNMFile(string fileName) {
-        ifstream inputFile(fileName);
-        read(inputFile);
-        inputFile.close();
+        read(fileName);
     }
 
     void read(string fileName) {
         ifstream inputFile(fileName, ios::binary);
+        if (!inputFile.is_open())
+            throw FileIOException();
         read(inputFile);
         inputFile.close();
     }
@@ -126,6 +149,8 @@ public:
 
     void write(string fileName) {
         ofstream outputFile(fileName, ios::binary);
+        if (!outputFile.is_open())
+            throw FileIOException();
         write(outputFile);
         outputFile.close();
     }
@@ -175,7 +200,10 @@ public:
     }
 
     void mirrorVertical() {
-
+        if (format == 5)
+            mirrorVerticalP5();
+        else
+            mirrorVerticalP6();
     }
 
     void turn90() {
@@ -197,10 +225,22 @@ int main(int argc, char* argv[]) {
     string inputFileName = argv[1], outputFileName = argv[2];
     Command command = (Command) stoi(argv[3], nullptr);
 
-    PNMFile picture(inputFileName);
+    PNMFile picture;
+
+    try {
+        picture.read(inputFileName);
+    } catch (exception& ex) {
+        cout << "Error while trying to read file " + inputFileName;
+        return -1;
+    }
     picture.execute(command);
 
-    picture.write(outputFileName);
+    try {
+        picture.write(outputFileName);
+    } catch (FileIOException& ex) {
+        cout << "Error while trying to write data to file " + outputFileName;
+        return -1;
+    }
 
     return 0;
 }
