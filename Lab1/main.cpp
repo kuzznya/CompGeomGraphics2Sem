@@ -139,8 +139,7 @@ public:
         inputFile >> format;
         inputFile >> width >> height;
         inputFile >> colors;
-        char NLSymbol;
-        inputFile.read(&NLSymbol, 1);
+        inputFile.get();
         if (format == 5)
             readP5(inputFile);
         else
