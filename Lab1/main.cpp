@@ -33,7 +33,7 @@ private:
         dataP6.clear();
         dataP5.resize(width * height);
         for (int i = 0; i < width * height; i++) {
-            inputFile >> dataP5[i];
+            inputFile.read((char*) &dataP5[i], 1);
         }
     }
 
@@ -43,7 +43,7 @@ private:
         uchar* buffer = new uchar[3];
         for (int i = 0; i < width * height; i++) {
             uchar r, g, b;
-            inputFile.read((char*)buffer, 3);
+            inputFile.read((char*) buffer, 3);
             r = buffer[0];
             g = buffer[1];
             b = buffer[2];
@@ -198,7 +198,7 @@ int main(int argc, char* argv[]) {
     Command command = (Command) stoi(argv[3], nullptr);
 
     PNMFile picture(inputFileName);
-    // picture.execute(command);
+    picture.execute(command);
 
     picture.write(outputFileName);
 
