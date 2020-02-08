@@ -213,26 +213,46 @@ public:
 
     }
 
+    void printInfo() {
+        cout << "PNM - Portable Any Map" << endl;
+        cout << "Format: P" << format << " - ";
+        if (format == 5)
+            cout << "grayscale image" << endl;
+        else
+            cout << "colored image" << endl;
+        cout << width << "x" << height << endl;
+        cout << colors << " colors" << endl;
+    }
+
 };
 
 int main(int argc, char* argv[]) {
     if (argc != 4) {
         cout << "Incorrect count of arguments" << endl;
-        return -1;
+        cout << "Arguments format: CompGeomGraphics <input file name> <output file name> <command>" << endl;
+        cout << "Commands:" << endl;
+        cout << "\t0 - inverse colors\n\t1 - mirror horizontally\n\t2 - mirror vertically"
+                "\n\t3 - turn clockwize\n\t4 - turn counterclockwize" << endl;
+        return 0;
     }
 
     string inputFileName = argv[1], outputFileName = argv[2];
     Command command = (Command) stoi(argv[3], nullptr);
 
     PNMFile picture;
-
     try {
         picture.read(inputFileName);
     } catch (exception& ex) {
         cout << "Error while trying to read file " + inputFileName;
         return -1;
     }
+    picture.printInfo();
+
+    cout << "Executing command..." << endl;
     picture.execute(command);
+    cout << "Done" << endl;
+
+    cout << "Saving changes..." << endl;
 
     try {
         picture.write(outputFileName);
@@ -240,6 +260,8 @@ int main(int argc, char* argv[]) {
         cout << "Error while trying to write data to file " + outputFileName;
         return -1;
     }
+
+    cout << "Picture saved to " << outputFileName << endl;
 
     return 0;
 }
