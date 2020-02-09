@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <ctime>
 
 using namespace std;
 
@@ -39,36 +40,38 @@ private:
     void readP5(ifstream& inputFile) {
         dataP6.clear();
         dataP5.resize(width * height);
-        for (int i = 0; i < width * height; i++) {
-            inputFile.read((char*) &dataP5[i], 1);
-        }
+        inputFile.read((char*) &dataP5[0], width * height);
     }
 
     void readP6(ifstream& inputFile) {
         dataP5.clear();
         dataP6.resize(width * height);
-        uchar* buffer = new uchar[3];
+
+        uchar* buffer = new uchar[width * height * 3];
+        inputFile.read((char*) buffer, width * height * 3);
+
         for (int i = 0; i < width * height; i++) {
-            uchar r, g, b;
-            inputFile.read((char*) buffer, 3);
-            r = buffer[0];
-            g = buffer[1];
-            b = buffer[2];
-            dataP6[i] = {r, g, b};
+            dataP6[i].R = buffer[i * 3 + 0];
+            dataP6[i].G = buffer[i * 3 + 1];
+            dataP6[i].B = buffer[i * 3 + 2];
         }
+
         delete[] buffer;
     }
 
     void writeP5(ofstream& outputFile) {
-        for (int i = 0; i < width * height; i++) {
-            outputFile << dataP5[i];
-        }
+        outputFile.write((char*) &dataP5[0], width * height);
     }
 
     void writeP6(ofstream& outputFile) {
+        uchar* buffer = new uchar[width * height * 3];
         for (int i = 0; i < width * height; i++) {
-            outputFile << dataP6[i].R << dataP6[i].G << dataP6[i].B;
+            buffer[i * 3 + 0] = dataP6[i].R;
+            buffer[i * 3 + 1] = dataP6[i].G;
+            buffer[i * 3 + 2] = dataP6[i].B;
         }
+        outputFile.write((char*) buffer, width * height * 3);
+        delete[] buffer;
     }
 
     void inverseP5() {
@@ -301,7 +304,9 @@ int main(int argc, char* argv[]) {
 
     PNMFile picture;
     try {
+        unsigned startTime = clock();
         picture.read(inputFileName);
+        cout << "Picture read in " << clock() - startTime << " clock ticks" << endl;
     } catch (exception& ex) {
         cout << "Error while trying to read file " + inputFileName;
         return -1;
@@ -309,13 +314,16 @@ int main(int argc, char* argv[]) {
     picture.printInfo();
 
     cout << "Executing command..." << endl;
+    unsigned startTime = clock();
     picture.execute(command);
-    cout << "Done" << endl;
+    cout << "Done in " << clock() - startTime << " clock ticks" << endl;
 
     cout << "Saving changes..." << endl;
 
     try {
+        startTime = clock();
         picture.write(outputFileName);
+        cout << "Picture saved in " << clock() - startTime << " clock ticks" << endl;
     } catch (FileIOException& ex) {
         cout << "Error while trying to write data to file " + outputFileName;
         return -1;
