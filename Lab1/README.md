@@ -5,8 +5,8 @@
 
 Команды:
 * 0 - инвертировать цвета  
-![Initial image](../img/Lenna.ppm)
-![Result](../img/Lenna_invert.ppm)
+![Initial image](../Lab1/img/Lenna.ppm)
+![Result](../Lab1/img/Lenna_invert.ppm)
 
 * 1 - отразить по горизонтали
 * 2 - отразить по вертикали
