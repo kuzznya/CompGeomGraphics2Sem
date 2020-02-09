@@ -29,6 +29,13 @@ public:
     }
 };
 
+class ExecutionException : public exception {
+public:
+    const char* what() const _NOEXCEPT override {
+        return "Failed to execute the command";
+    }
+};
+
 class PNMFile {
 private:
     short format;
@@ -236,6 +243,8 @@ public:
             case ::turn270:
                 turn270();
                 break;
+            default:
+                throw ExecutionException();
         }
     }
 
@@ -300,7 +309,13 @@ int main(int argc, char* argv[]) {
     }
 
     string inputFileName = argv[1], outputFileName = argv[2];
-    Command command = (Command) stoi(argv[3], nullptr);
+    Command command;
+    try {
+        command = (Command) stoi(argv[3], nullptr);
+    } catch (invalid_argument& ex) {
+        cout << "Invalid command " << argv[3] << endl;
+        return -2;
+    }
 
     PNMFile picture;
     try {
@@ -313,9 +328,14 @@ int main(int argc, char* argv[]) {
     }
     picture.printInfo();
 
-    cout << "Executing command..." << endl;
+    cout << "Executing the command..." << endl;
     unsigned startTime = clock();
-    picture.execute(command);
+    try {
+        picture.execute(command);
+    } catch (ExecutionException& ex) {
+        cout << "Failed to execute the command" << endl;
+        return -2;
+    }
     cout << "Done in " << clock() - startTime << " clock ticks" << endl;
 
     cout << "Saving changes..." << endl;
