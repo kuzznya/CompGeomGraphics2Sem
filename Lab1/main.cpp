@@ -117,6 +117,58 @@ private:
         }
     }
 
+    void turn90P5() {
+        vector<uchar> turnedDataP5(width * height);
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                turnedDataP5[(height - i - 1) + j * height] = dataP5[i * width + j];
+            }
+        }
+
+        dataP5.clear();
+        dataP5 = turnedDataP5;
+    }
+
+    void turn90P6() {
+        vector<RGB> turnedDataP6(width * height);
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                turnedDataP6[(height - i - 1) + j * height] = dataP6[i * width + j];
+            }
+        }
+
+        dataP6.clear();
+        dataP6 = turnedDataP6;
+    }
+
+    void turn270P5() {
+        vector<uchar> turnedDataP5(width * height);
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                turnedDataP5[height * (width - j - 1) + i] = dataP5[i * width + j];
+            }
+        }
+
+        dataP5.clear();
+        dataP5 = turnedDataP5;
+    }
+
+    void turn270P6() {
+        vector<RGB> turnedDataP6(width * height);
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                turnedDataP6[height * (width - j - 1) + i] = dataP6[i * width + j];
+            }
+        }
+
+        dataP6.clear();
+        dataP6 = turnedDataP6;
+    }
+
 public:
 
     PNMFile() = default;
@@ -206,11 +258,19 @@ public:
     }
 
     void turn90() {
-
+        if (format == 5)
+            turn90P5();
+        else
+            turn90P6();
+        swap(width, height);
     }
 
     void turn270() {
-
+        if (format == 5)
+            turn270P5();
+        else
+            turn270P6();
+        swap(width, height);
     }
 
     void printInfo() {
