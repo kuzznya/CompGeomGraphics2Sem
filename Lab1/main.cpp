@@ -304,7 +304,7 @@ int main(int argc, char* argv[]) {
         cout << "Arguments format: CompGeomGraphics <input file name> <output file name> <command>" << endl;
         cout << "Commands:" << endl;
         cout << "\t0 - inverse colors\n\t1 - mirror horizontally\n\t2 - mirror vertically"
-                "\n\t3 - turn clockwize\n\t4 - turn counterclockwize" << endl;
+                "\n\t3 - turn clockwise\n\t4 - turn counterclockwise" << endl;
         return 0;
     }
 
