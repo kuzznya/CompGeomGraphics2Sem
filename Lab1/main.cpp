@@ -29,6 +29,13 @@ public:
     }
 };
 
+class UnsupportedFormatException : public exception {
+public:
+    const char* what() const _NOEXCEPT override {
+        return "Unsupported format of PNM file";
+    }
+};
+
 class ExecutionException : public exception {
 public:
     const char* what() const _NOEXCEPT override {
@@ -198,9 +205,18 @@ public:
     void read(ifstream& inputFile) {
         char P;
         inputFile >> P;
+        if (P != 'P')
+            throw UnsupportedFormatException();
+
         inputFile >> format;
+        if (format != 5 && format != 6)
+            throw UnsupportedFormatException();
+
         inputFile >> width >> height;
         inputFile >> colors;
+        if (colors != 255)
+            throw UnsupportedFormatException();
+
         inputFile.get();
         if (format == 5)
             readP5(inputFile);
@@ -312,6 +328,8 @@ int main(int argc, char* argv[]) {
     Command command;
     try {
         command = (Command) stoi(argv[3], nullptr);
+        if (command < 0 || command > 4)
+            throw invalid_argument("Invalid command");
     } catch (invalid_argument& ex) {
         cout << "Invalid command " << argv[3] << endl;
         return -2;
@@ -322,8 +340,11 @@ int main(int argc, char* argv[]) {
         unsigned startTime = clock();
         picture.read(inputFileName);
         cout << "Picture read in " << clock() - startTime << " clock ticks" << endl;
+    } catch (UnsupportedFormatException& ex) {
+        cout << "Unsupported PNM file format" << endl;
+        return -1;
     } catch (exception& ex) {
-        cout << "Error while trying to read file " + inputFileName;
+        cout << "Error while trying to read file " << inputFileName << endl;
         return -1;
     }
     picture.printInfo();
