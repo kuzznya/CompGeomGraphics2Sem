@@ -23,7 +23,7 @@
 
 2. Исходное изображение:  
 ![Initial image](../Lab1/img/png/Lenna_grayscale.png)  
-Отражение по вертикали:  
+Отражение по горизонтали:  
 ![Result](../Lab1/img/png/Lenna_mirror.png)
 
 3. Исходное изображение:  

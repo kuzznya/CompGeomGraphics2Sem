@@ -102,7 +102,7 @@ private:
         }
     }
 
-    void mirrorHorizontalP5() {
+    void mirrorVerticalP5() {
         for (int j = 0; j < width; j++) {
             for (int i = 0; i < height / 2; i++) {
                 swap(dataP5[i * width + j], dataP5[(height - 1) * width - i * width + j]);
@@ -110,7 +110,7 @@ private:
         }
     }
 
-    void mirrorHorizontalP6() {
+    void mirrorVerticalP6() {
         for (int j = 0; j < width; j++) {
             for (int i = 0; i < height / 2; i++) {
                 swap(dataP6[i * width + j], dataP6[(height - 1) * width - i * width + j]);
@@ -118,7 +118,7 @@ private:
         }
     }
 
-    void mirrorVerticalP5() {
+    void mirrorHorizontalP5() {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width / 2; j++) {
                 swap(dataP5[i * width + j], dataP5[i * width + width - j - 1]);
@@ -126,7 +126,7 @@ private:
         }
     }
 
-    void mirrorVerticalP6() {
+    void mirrorHorizontalP6() {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width / 2; j++) {
                 swap(dataP6[i * width + j], dataP6[i * width + width - j - 1]);
@@ -271,18 +271,18 @@ public:
             inverseP6();
     }
 
-    void mirrorHorizontal() {
-        if (format == 5)
-            mirrorHorizontalP5();
-        else
-            mirrorHorizontalP6();
-    }
-
     void mirrorVertical() {
         if (format == 5)
             mirrorVerticalP5();
         else
             mirrorVerticalP6();
+    }
+
+    void mirrorHorizontal() {
+        if (format == 5)
+            mirrorHorizontalP5();
+        else
+            mirrorHorizontalP6();
     }
 
     void turn90() {
