@@ -45,6 +45,30 @@ public:
 };
 
 class PNMPicture {
+public:
+    PNMPicture();
+    explicit PNMPicture(string fileName);
+
+    void read(string fileName);
+    void read(ifstream& inputFile);
+
+    void write(string fileName);
+    void write(ofstream& outputFile);
+
+    void execute(Command cmd);
+
+    void inverse();
+
+    void mirrorVertical();
+
+    void mirrorHorizontal();
+
+    void turn90();
+
+    void turn270();
+
+    void printInfo();
+
 private:
     short format;
     int width, height;
@@ -72,32 +96,6 @@ private:
 
     void turn270P5();
     void turn270P6();
-
-public:
-
-    PNMPicture();
-
-    explicit PNMPicture(string fileName);
-
-    void read(string fileName);
-    void read(ifstream& inputFile);
-
-    void write(string fileName);
-    void write(ofstream& outputFile);
-
-    void execute(Command cmd);
-
-    void inverse();
-
-    void mirrorVertical();
-
-    void mirrorHorizontal();
-
-    void turn90();
-
-    void turn270();
-
-    void printInfo();
 
 };
 

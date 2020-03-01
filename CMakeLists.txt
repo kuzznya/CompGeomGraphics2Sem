@@ -3,4 +3,4 @@ project(CompGeomGraphics)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(CompGeomGraphics Lab1/PNMPicture.cpp Lab1/PNMPicture.h Lab1/main.cpp)
+add_executable(CompGeomGraphics Lab2/main.cpp Lab2/PNMPicture.h Lab2/PNMPicture.h)
