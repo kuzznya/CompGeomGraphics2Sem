@@ -43,14 +43,17 @@ public:
     void read(string fileName);
     void read(ifstream& inputFile);
 
-    void write(string fileName);
+    void write(const string& fileName);
     void write(ofstream& outputFile);
 
-    void drawLine(uchar brightness, float thickness, Point linePoint, float gamma = 2.2);
+    void drawLine(Point start, Point end, uchar brightness, float thickness, float gamma = 2.2);
+    void drawLine(float x0, float y0, float x1, float y1, uchar brightness, float thickness, float gamma = 2.2);
 
 private:
     short format;
     int width, height;
     int colors;
     vector<uchar> data;
+
+    void drawPoint(int x, int y, float brightness, float gamma);
 };
