@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
 
     string inputFileName = argv[1];
     string outputFileName = argv[2];
-    uchar brightness = stoi(argv[3]);
+    uchar color = stoi(argv[3]);
     float thickness = stof(argv[4]);
     float x0 = stof(argv[5]);
     float y0 = stof(argv[6]);
@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     float y1 = stof(argv[8]);
     float gamma = 2.2;
     bool gammaDefined = false;
-    if (argc == 8) {
+    if (argc == 10) {
         gamma = stof(argv[9]);
         gammaDefined = true;
     }
@@ -30,9 +30,9 @@ int main(int argc, char* argv[]) {
     picture.read(inputFileName);
 
     if (gammaDefined)
-        picture.drawLine(x0, y0, x1, y1, brightness, thickness, gamma);
+        picture.drawLine(x0, y0, x1, y1, color, thickness, gamma);
     else
-        picture.drawLine(x0, y0, x1, y1, brightness, thickness);
+        picture.drawLine(x0, y0, x1, y1, color, thickness);
 
     picture.write(outputFileName);
 }

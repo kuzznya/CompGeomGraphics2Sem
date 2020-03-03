@@ -46,7 +46,7 @@ public:
     void write(const string& fileName);
     void write(ofstream& outputFile);
 
-    void drawLine(Point start, Point end, uchar brightness, float thickness, float gamma = 2.2);
+    void drawLine(Point start, Point end, uchar color, float thickness, float gamma = 2.2);
     void drawLine(float x0, float y0, float x1, float y1, uchar brightness, float thickness, float gamma = 2.2);
 
 private:
@@ -55,5 +55,5 @@ private:
     int colors;
     vector<uchar> data;
 
-    void drawPoint(int x, int y, float brightness, float gamma);
+    void drawPoint(int x, int y, double brightness, uchar color, float gamma);
 };
