@@ -113,5 +113,5 @@ void PNMPicture::drawPoint(int x, int y, double brightness, uchar color, float g
         throw ExecutionException();
     if (y < 0 || y >= height || x < 0 || x >= width)
         return;
-     data[width * y + x] = color * pow(brightness, 1.0 / gamma);
+     data[width * y + x] *= pow(brightness, 1.0 / gamma);
 }
