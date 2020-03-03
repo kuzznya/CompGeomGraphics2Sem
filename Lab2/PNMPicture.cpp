@@ -79,24 +79,9 @@ void PNMPicture::drawLine(Point start, Point end, uchar color, float thickness, 
     double dy = end.y - start.y;
     double gradient = dy / dx;
 
-    // handle first endpoint
-    double xStart = round(start.x);
-    double yStart = start.y + gradient * (xStart - start.x);
-    double xGap = 1 - fracPart(start.x + 0.5);
+    double y = start.y + gradient * (round(start.x) - start.x);
 
-    plot(xStart, floor(yStart), (1.0 - fracPart(yStart)) * xGap);
-    plot(xStart, floor(yStart) + 1.0, fracPart(yStart) * xGap);
-
-    // handle second endpoint
-    double xEnd = round(end.x);
-    double yEnd = end.y + gradient * (xEnd - end.x);
-    xGap = fracPart(end.x + 0.5);
-
-    plot(xEnd, intPart(yEnd), (1.0 - fracPart(yEnd)) * xGap);
-    plot(xEnd, intPart(yEnd) + 1.0, fracPart(yEnd) * xGap);
-
-    double y = yStart + gradient;
-    for(int x = intPart(xStart + 1.0); x <= xEnd - 1; x++){
+    for(int x = round(start.x); x <= round(end.x); x++){
         plot(x, intPart(y), (1.0 - fracPart(y)));
         plot(x, intPart(y) + 1.0, fracPart(y));
         y += gradient;
