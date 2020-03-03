@@ -80,31 +80,26 @@ void PNMPicture::drawLine(Point start, Point end, uchar color, float thickness, 
     double gradient = dy / dx;
 
     // handle first endpoint
-    double xEnd = round(start.x);
-    double yEnd = start.y + gradient * (xEnd - start.x);
+    double xStart = round(start.x);
+    double yStart = start.y + gradient * (xStart - start.x);
     double xGap = 1 - fracPart(start.x + 0.5);
-    double xPixel1 = xEnd; // will be used in the main loop
-    double yPixel1 = intPart(yEnd);
 
-    plot(xPixel1,yPixel1, (1.0 - fracPart(yEnd)) * xGap);
-    plot(xPixel1, yPixel1 + 1.0, fracPart(yEnd) * xGap);
-
-    // first y-intersection for the main loop
-    double interY = yEnd + gradient;
+    plot(xStart, floor(yStart), (1.0 - fracPart(yStart)) * xGap);
+    plot(xStart, floor(yStart) + 1.0, fracPart(yStart) * xGap);
 
     // handle second endpoint
-    xEnd = round(end.x);
-    yEnd = end.y + gradient * (xEnd - end.x);
+    double xEnd = round(end.x);
+    double yEnd = end.y + gradient * (xEnd - end.x);
     xGap = fracPart(end.x + 0.5);
-    double xPixel2 = xEnd; // will be used in the main loop
-    double yPixel2 = intPart(yEnd);
-    plot(xPixel2, yPixel2, (1.0 - fracPart(yEnd)) * xGap);
-    plot(xPixel2, yPixel2 + 1.0, fracPart(yEnd) * xGap);
 
-    for(int x = intPart(xPixel1 + 1.0); x <= xPixel2 - 1; x++){
-        plot(x, intPart(interY), (1.0 - fracPart(interY)));
-        plot(x, intPart(interY) + 1.0, fracPart(interY));
-        interY += gradient;
+    plot(xEnd, intPart(yEnd), (1.0 - fracPart(yEnd)) * xGap);
+    plot(xEnd, intPart(yEnd) + 1.0, fracPart(yEnd) * xGap);
+
+    double y = yStart + gradient;
+    for(int x = intPart(xStart + 1.0); x <= xEnd - 1; x++){
+        plot(x, intPart(y), (1.0 - fracPart(y)));
+        plot(x, intPart(y) + 1.0, fracPart(y));
+        y += gradient;
     }
 
 }
