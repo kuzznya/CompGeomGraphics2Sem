@@ -54,6 +54,17 @@ void PNMPicture::write(ofstream& outputFile) {
 }
 
 void PNMPicture::drawLine(Point start, Point end, uchar color, float thickness, float gamma) {
+    //drawWuLine(start, end, color, gamma);
+    for (float offset = -thickness / 2.0; offset < thickness / 2.0; offset += 0.5)
+        drawWuLine({start.x, start.y + offset}, {end.x, end.y + offset}, color, gamma);
+
+}
+
+void PNMPicture::drawLine(float x0, float y0, float x1, float y1, uchar brightness, float thickness, float gamma) {
+    drawLine({x0, y0}, {x1, y1}, brightness, thickness, gamma);
+}
+
+void PNMPicture::drawWuLine(Point start, Point end, uchar color, float gamma) {
 
     bool steep = abs(end.y - start.y) > abs(end.x - start.x);
 
@@ -88,15 +99,12 @@ void PNMPicture::drawLine(Point start, Point end, uchar color, float thickness, 
     }
 }
 
-void PNMPicture::drawLine(float x0, float y0, float x1, float y1, uchar brightness, float thickness, float gamma) {
-    drawLine({x0, y0}, {x1, y1}, brightness, thickness, gamma);
-}
 
-void PNMPicture::drawPoint(int x, int y, double brightness, uchar color, float gamma) {
-    if (brightness < 0 || brightness > 1)
+void PNMPicture::drawPoint(int x, int y, double darkness, uchar color, float gamma) {
+    if (darkness < 0 || darkness > 1)
         throw ExecutionException();
     if (y < 0 || y >= height || x < 0 || x >= width)
         return;
     double k = color / (double) data[width * y + x];
-     data[width * y + x] *= pow((1 - k) * brightness + k, 1.0 / gamma);
+     data[width * y + x] *= pow((1 - k) * darkness + k, 1.0 / gamma);
 }

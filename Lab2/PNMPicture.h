@@ -55,5 +55,6 @@ private:
     int colors;
     vector<uchar> data;
 
-    void drawPoint(int x, int y, double brightness, uchar color, float gamma);
+    void drawWuLine(Point start, Point end, uchar color, float gamma = 2.2);
+    void drawPoint(int x, int y, double darkness, uchar color, float gamma);
 };
