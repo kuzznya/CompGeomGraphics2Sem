@@ -56,5 +56,6 @@ private:
     vector<uchar> data;
 
     void drawWuLine(Point start, Point end, uchar color, float gamma = 2.2);
-    void drawPoint(int x, int y, double darkness, uchar color, float gamma);
+    void drawBresenhamLine(Point start, Point end, uchar color, float gamma = 2.2);
+    void drawPoint(int x, int y, double intensity, uchar color, float gamma);
 };
