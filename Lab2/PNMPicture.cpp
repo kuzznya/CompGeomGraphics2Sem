@@ -54,15 +54,6 @@ void PNMPicture::write(ofstream& outputFile) {
 }
 
 void PNMPicture::drawLine(Point start, Point end, uchar color, float thickness, float gamma) {
-    drawWuLine({start.x, start.y}, {end.x, end.y}, color, gamma, thickness);
-
-}
-
-void PNMPicture::drawLine(float x0, float y0, float x1, float y1, uchar brightness, float thickness, float gamma) {
-    drawLine({x0, y0}, {x1, y1}, brightness, thickness, gamma);
-}
-
-void PNMPicture::drawWuLine(Point start, Point end, uchar color, float gamma, float thickness) {
 
     bool steep = abs(end.y - start.y) > abs(end.x - start.x);
 
@@ -90,13 +81,19 @@ void PNMPicture::drawWuLine(Point start, Point end, uchar color, float gamma, fl
 
     double y = start.y + gradient * (round(start.x) - start.x);
 
-    for(int x = round(start.x); x <= round(end.x); x++){
+    for(int x = round(start.x); x <= round(end.x); x++) {
         for (int plotY = intPart(y - (thickness - 1) / 2);
-                                plotY <= intPart(y - (thickness - 1) / 2 + thickness); plotY++) {
-            plot(x, plotY, min(1.0, (thickness + 1.) / 2. - fabs(y - plotY)));
+             plotY <= intPart(y - (thickness - 1) / 2 + thickness); plotY++)
+        {
+            plot(x, plotY, min(1.0, (thickness + 1.0) / 2.0 - fabs(y - plotY)));
         }
         y += gradient;
     }
+
+}
+
+void PNMPicture::drawLine(float x0, float y0, float x1, float y1, uchar color, float thickness, float gamma) {
+    drawLine({x0, y0}, {x1, y1}, color, thickness, gamma);
 }
 
 
