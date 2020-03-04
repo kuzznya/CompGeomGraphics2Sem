@@ -54,30 +54,7 @@ void PNMPicture::write(ofstream& outputFile) {
 }
 
 void PNMPicture::drawLine(Point start, Point end, uchar color, float thickness, float gamma) {
-
-    const bool steep = abs(end.y - start.y) > abs(end.x - start.x);
-
-    if (thickness == 1)
-        drawWuLine(start, end, color, gamma);
-    else if (thickness < 3) {
-        for (float offset = - thickness / 2.0; offset < thickness / 2.0; offset += 0.5)
-            drawWuLine({start.x, start.y + offset}, {end.x, end.y + offset}, color, gamma);
-    }
-    else {
-        if (!steep) {
-            drawWuLine({start.x, start.y - thickness / 2}, {end.x, end.y - thickness / 2}, color, gamma);
-            drawWuLine({start.x, start.y + thickness / 2}, {end.x, end.y + thickness / 2}, color, gamma);
-            for (float offset = -thickness / 2.0 + 1; offset <= thickness / 2.0 - 1; offset += 0.5)
-                drawBresenhamLine({start.x, start.y + offset}, {end.x, end.y + offset}, color, gamma);
-        }
-        else {
-            drawWuLine({start.x - thickness / 2, start.y}, {end.x - thickness / 2, end.y}, color, gamma);
-            drawWuLine({start.x + thickness / 2, start.y}, {end.x + thickness / 2, end.y}, color, gamma);
-            for (float offset = -thickness / 2.0 + 1; offset <= thickness / 2.0 - 1; offset += 0.5)
-                drawBresenhamLine({start.x + offset, start.y}, {end.x + offset, end.y}, color, gamma);
-        }
-    }
-
+    drawWuLine({start.x, start.y}, {end.x, end.y}, color, gamma, thickness);
 
 }
 
@@ -85,9 +62,9 @@ void PNMPicture::drawLine(float x0, float y0, float x1, float y1, uchar brightne
     drawLine({x0, y0}, {x1, y1}, brightness, thickness, gamma);
 }
 
-void PNMPicture::drawWuLine(Point start, Point end, uchar color, float gamma) {
+void PNMPicture::drawWuLine(Point start, Point end, uchar color, float gamma, float thickness) {
 
-    const bool steep = abs(end.y - start.y) > abs(end.x - start.x);
+    bool steep = abs(end.y - start.y) > abs(end.x - start.x);
 
     auto fracPart = [](double x) -> double {return x - floor(x);};
     auto intPart = [](double x) -> int {return (int) x;};
@@ -114,61 +91,20 @@ void PNMPicture::drawWuLine(Point start, Point end, uchar color, float gamma) {
     double y = start.y + gradient * (round(start.x) - start.x);
 
     for(int x = round(start.x); x <= round(end.x); x++){
-        plot(x, intPart(y), (1.0 - fracPart(y)));
-        plot(x, intPart(y) + 1.0, fracPart(y));
+        for (int plotY = intPart(y - (thickness - 1) / 2);
+                                plotY <= intPart(y - (thickness - 1) / 2 + thickness); plotY++) {
+            plot(x, plotY, min(1.0, (thickness + 1.) / 2. - fabs(y - plotY)));
+        }
         y += gradient;
     }
 }
 
-void PNMPicture::drawBresenhamLine(Point start, Point end, uchar color, float gamma) {
 
-    int dx = (int) abs(end.x - start.x);
-    int dy = (int) abs(end.y - start.y);
-
-    int signX = start.x < end.x ? 1 : -1;
-    int signY = start.y < end.y ? 1 : -1;
-
-    auto plot = [&](int x, int y) -> void {
-        if (dx >= dy)
-            drawPoint(x, y, 0, color, gamma);
-        else
-            drawPoint(y, x, 0, color, gamma);
-    };
-
-    auto draw = [plot](const int x1, const int y1,
-            const int x2, const int y2,
-            const int dx, const int dy,
-            const int signX, const int signY) -> void {
-        int err = 0;
-
-        int x = x1;
-        int y = y1;
-
-        while (true) {
-            plot(x, y);
-            if (x == x2)
-                break;
-            x += signX;
-            err += 2 * dy;
-            if (err > dx) {
-                y += signY;
-                err -= 2 * dx;
-            }
-        }
-    };
-
-    if (dx >= dy)
-        draw(start.x, start.y, end.x, end.y, dx, dy, signX, signY);
-    else
-        draw(start.y, start.x, end.y, end.x, dy, dx, signY, signX);
-
-}
-
-void PNMPicture::drawPoint(int x, int y, double intensity, uchar color, float gamma) {
-    if (intensity < 0 || intensity > 1)
+void PNMPicture::drawPoint(int x, int y, double darkness, uchar color, float gamma) {
+    if (darkness < 0 || darkness > 1)
         throw ExecutionException();
     if (y < 0 || y >= height || x < 0 || x >= width)
         return;
     double k = color / (double) data[width * y + x];
-     data[width * y + x] *= pow((1 - k) * intensity + k, 1.0 / gamma);
+     data[width * y + x] *= pow((1 - k) * darkness + k, 1.0 / gamma);
 }
