@@ -86,7 +86,6 @@ void PNMPicture::drawLine(Point start, Point end, uchar color, float thickness, 
         plot(x, intPart(y) + 1.0, fracPart(y));
         y += gradient;
     }
-
 }
 
 void PNMPicture::drawLine(float x0, float y0, float x1, float y1, uchar brightness, float thickness, float gamma) {
@@ -98,5 +97,6 @@ void PNMPicture::drawPoint(int x, int y, double brightness, uchar color, float g
         throw ExecutionException();
     if (y < 0 || y >= height || x < 0 || x >= width)
         return;
-     data[width * y + x] *= pow(brightness, 1.0 / gamma);
+    double k = color / (double) data[width * y + x];
+     data[width * y + x] *= pow((1 - k) * brightness + k, 1.0 / gamma);
 }
