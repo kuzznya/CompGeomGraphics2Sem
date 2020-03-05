@@ -59,11 +59,11 @@ void PNMPicture::drawLine(Point start, Point end, uchar color, float thickness, 
 
     auto fracPart = [](double x) -> double {return x - floor(x);};
     auto intPart = [](double x) -> int {return (int) x;};
-    auto plot = [&](int x, int y, double brightness) -> void {
+    auto plot = [&](int x, int y, double intensity) -> void {
         if (steep)
-            drawPoint(y, x, 1.0 - brightness, color, gamma);
+            drawPoint(y, x, 1.0 - intensity, color, gamma);
         else
-            drawPoint(x, y, 1.0 - brightness, color, gamma);
+            drawPoint(x, y, 1.0 - intensity, color, gamma);
     };
 
     if (steep) {
