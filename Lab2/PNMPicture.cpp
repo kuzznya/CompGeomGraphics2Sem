@@ -97,8 +97,8 @@ void PNMPicture::drawLine(float x0, float y0, float x1, float y1, uchar color, f
 }
 
 
-void PNMPicture::drawPoint(int x, int y, double darkness, uchar color, float gamma) {
-    if (darkness < 0 || darkness > 1)
+void PNMPicture::drawPoint(int x, int y, double intensity, uchar color, float gamma) {
+    if (intensity < 0 || intensity > 1)
         throw ExecutionException();
     if (y < 0 || y >= height || x < 0 || x >= width)
         return;
