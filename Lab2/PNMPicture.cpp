@@ -97,11 +97,9 @@ void PNMPicture::drawLine(float x0, float y0, float x1, float y1, uchar color, f
 }
 
 
-void PNMPicture::drawPoint(int x, int y, double intensity, uchar color, float gamma) {
-    if (intensity < 0 || intensity > 1)
-        throw ExecutionException();
+void PNMPicture::drawPoint(int x, int y, double brightness, uchar color, float gamma) {
+    brightness = max(min(brightness, 1.0), 0.0);
     if (y < 0 || y >= height || x < 0 || x >= width)
         return;
-    double k = color / (double) data[width * y + x];
-     data[width * y + x] *= pow((1 - k) * darkness + k, 1.0 / gamma);
+    data[width * y + x] = pow(brightness * data[width * y + x] + color * (1 - brightness), 1 / gamma);
 }
