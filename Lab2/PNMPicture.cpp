@@ -101,5 +101,6 @@ void PNMPicture::drawPoint(int x, int y, double brightness, uchar color, float g
     brightness = max(min(brightness, 1.0), 0.0);
     if (y < 0 || y >= height || x < 0 || x >= width)
         return;
-    data[width * y + x] = pow(brightness * data[width * y + x] + color * (1 - brightness), 1 / gamma);
+    data[width * y + x] = 255 * pow((brightness * data[width * y + x] + color * (1 - brightness)) / 255.0,
+            (1.0 / gamma - 1.0) * (1.0 - brightness) + 1.0);
 }
