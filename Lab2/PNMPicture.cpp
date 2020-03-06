@@ -57,7 +57,6 @@ void PNMPicture::drawLine(Point start, Point end, uchar color, float thickness, 
 
     bool steep = abs(end.y - start.y) > abs(end.x - start.x);
 
-    auto fracPart = [](double x) -> double {return x - floor(x);};
     auto intPart = [](double x) -> int {return (int) x;};
     auto plot = [&](int x, int y, double intensity) -> void {
         if (steep)
@@ -97,10 +96,10 @@ void PNMPicture::drawLine(float x0, float y0, float x1, float y1, uchar color, f
 }
 
 
-void PNMPicture::drawPoint(int x, int y, double brightness, uchar color, float gamma) {
-    brightness = max(min(brightness, 1.0), 0.0);
+void PNMPicture::drawPoint(int x, int y, double transparency, uchar color, float gamma) {
+    transparency = max(min(transparency, 1.0), 0.0);
     if (y < 0 || y >= height || x < 0 || x >= width)
         return;
-    data[width * y + x] = 255 * pow((brightness * data[width * y + x] + color * (1 - brightness)) / 255.0,
-            (1.0 / gamma - 1.0) * (1.0 - brightness) + 1.0);
+    data[width * y + x] = 255 * pow((transparency * data[width * y + x] + color * (1 - transparency)) / 255.0,
+            (1.0 / gamma - 1.0) * (1.0 - transparency) + 1.0);
 }

@@ -55,5 +55,5 @@ private:
     int colors;
     vector<uchar> data;
 
-    void drawPoint(int x, int y, double brightness, uchar color, float gamma);
+    void drawPoint(int x, int y, double transparency, uchar color, float gamma);
 };
