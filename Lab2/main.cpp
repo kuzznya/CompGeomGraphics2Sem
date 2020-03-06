@@ -5,9 +5,7 @@
 int main(int argc, char* argv[]) {
 
     if (argc < 9 || argc > 10) {
-        cout << "Incorrect count of arguments" << endl;
-        cout << "Arguments format: CompGeomGraphics <input file name> <output file name> <brightness> <thickness> "
-                "<x0> <y0> <x1> <y1> [<gamma>]" << endl;
+        cerr << "Incorrect count of arguments" << endl;
         return 0;
     }
 
@@ -27,12 +25,28 @@ int main(int argc, char* argv[]) {
     }
 
     PNMPicture picture;
-    picture.read(inputFileName);
 
-    if (gammaDefined)
-        picture.drawLine(x0, y0, x1, y1, color, thickness, gamma);
-    else
-        picture.drawLine(x0, y0, x1, y1, color, thickness);
+    try {
+        picture.read(inputFileName);
+    } catch (FileIOException&) {
+        cerr << "Error while trying to read file " << inputFileName << endl;
+        return 1;
+    } catch (UnsupportedFormatException&) {
+        cerr << "Error: unsupported format" << endl;
+        return 1;
+    }
+
+    try {
+        if (gammaDefined)
+            picture.drawLine(x0, y0, x1, y1, color, thickness, gamma);
+        else
+            picture.drawLine(x0, y0, x1, y1, color, thickness);
+    } catch (FileIOException&) {
+        cerr << "Error while trying to white picture to file " << outputFileName << endl;
+        return 1;
+    }
 
     picture.write(outputFileName);
+
+    return 0;
 }
