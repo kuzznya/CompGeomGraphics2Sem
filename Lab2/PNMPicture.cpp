@@ -54,6 +54,8 @@ void PNMPicture::write(ofstream& outputFile) {
 }
 
 void PNMPicture::drawLine(Point start, Point end, uchar color, float thickness, float gamma) {
+    if (thickness <= 0)
+        return;
 
     bool steep = abs(end.y - start.y) > abs(end.x - start.x);
 
@@ -71,6 +73,9 @@ void PNMPicture::drawLine(Point start, Point end, uchar color, float thickness, 
             else
                 drawPoint(x, y, 1.0 - intensity, color, gamma);
         }
+    };
+    auto distance = [](Point a, Point b) -> double {
+        return sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
     };
 
     if (steep) {
@@ -97,6 +102,23 @@ void PNMPicture::drawLine(Point start, Point end, uchar color, float thickness, 
         y += gradient;
     }
 
+    Point plotStart = {round(start.x), round(start.y)};
+    for (int plotX = round(start.x) - thickness / 2; plotX < round(start.x); plotX++) {
+        y = start.y + gradient * (plotX - start.x);
+        for (int plotY = int(y - (thickness - 1) / 2.0); plotY <= int(y - (thickness - 1) / 2.0 + thickness); plotY++) {
+            plot(plotX, plotY, min(1.0, (thickness + 0.5) / 2.0 -
+            distance({(float) plotX, (float) plotY}, {plotStart.x, plotStart.y})));
+        }
+    }
+
+    Point plotEnd = {round(end.x), round(end.y)};
+    for (int plotX = round(end.x) + 1; plotX <= round(end.x) + thickness / 2; plotX++) {
+        y = start.y + gradient * (plotX - start.x);
+        for (int plotY = int(y - (thickness - 1) / 2.0); plotY <= int(y - (thickness - 1) / 2.0 + thickness); plotY++) {
+            plot(plotX, plotY, min(1.0, (thickness + 0.5) / 2.0 -
+                                       distance({(float) plotX, (float) plotY}, {plotEnd.x, plotEnd.y})));
+        }
+    }
 }
 
 void PNMPicture::drawLine(float x0, float y0, float x1, float y1, uchar color, float thickness, float gamma) {
