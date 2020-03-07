@@ -59,10 +59,18 @@ void PNMPicture::drawLine(Point start, Point end, uchar color, float thickness, 
 
     auto intPart = [](double x) -> int {return (int) x;};
     auto plot = [&](int x, int y, double intensity) -> void {
-        if (steep)
-            drawPoint(y, x, 1.0 - intensity, color, gamma);
-        else
-            drawPoint(x, y, 1.0 - intensity, color, gamma);
+        if (gamma == 0) {
+            if (steep)
+                drawPoint(y, x, 1.0 - intensity, color);
+            else
+                drawPoint(x, y, 1.0 - intensity, color);
+        }
+        else {
+            if (steep)
+                drawPoint(y, x, 1.0 - intensity, color, gamma);
+            else
+                drawPoint(x, y, 1.0 - intensity, color, gamma);
+        }
     };
 
     if (steep) {
@@ -95,6 +103,17 @@ void PNMPicture::drawLine(float x0, float y0, float x1, float y1, uchar color, f
     drawLine({x0, y0}, {x1, y1}, color, thickness, gamma);
 }
 
+void PNMPicture::drawPoint(int x, int y, double transparency, uchar color) {
+    transparency = max(min(transparency, 1.0), 0.0);
+    if (y < 0 || y >= height || x < 0 || x >= width)
+        return;
+    double lineColorLinear = color / 255.0;
+    double picColorSRGB = data[width * y + x] / 255.0;
+    double picColorLinear = picColorSRGB <= 0.04045 ? picColorSRGB / 12.92 : pow((picColorSRGB + 0.055) / 1.055, 2.4);
+    double c = (1 - transparency) * lineColorLinear + transparency * picColorLinear;
+    double csrgb = c <= 0.0031308 ? 12.92 * c : 1.055 * pow(c, 1 / 2.4) - 0.055;
+    data[width * y + x] = 255 * csrgb;
+}
 
 void PNMPicture::drawPoint(int x, int y, double transparency, uchar color, float gamma) {
     transparency = max(min(transparency, 1.0), 0.0);
