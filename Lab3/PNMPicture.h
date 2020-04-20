@@ -66,7 +66,7 @@ public:
 
     void fillWithGradient();
 
-    void dither();
+    void dither(DitherAlgo algo, uchar bits);
 
 private:
     short format;
@@ -76,7 +76,16 @@ private:
 
     uchar& get(int h, int w);
 
-    void drawPoint(int h, int w, double transparency, uchar color);
-    void drawPoint(int h, int w, double transparency, uchar color, float gamma);
+    void ditherNone(uchar bits);
+    void ditherOrdered(uchar bits);
+    void ditherRandom(uchar bits);
+    void ditherFloydSteinberg(uchar bits);
+    void ditherJJN(uchar bits);
+    void ditherSierra(uchar bits);
+    void ditherAtkinson(uchar bits);
+    void ditherHalftone(uchar bits);
+
+    uchar undoCorrection(uchar color);
+    uchar correct(uchar color);
 
 };
