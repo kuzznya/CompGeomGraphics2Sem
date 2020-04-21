@@ -2,8 +2,8 @@
 #include "PNMPicture.h"
 
 int main() {
-    PNMPicture pic = PNMPicture("output.pgm");
-    pic.fillWithGradient();
-    pic.dither(DitherAlgo::NONE, 4);
+    PNMPicture pic = PNMPicture("LennaGS.pgm");
+//    pic.fillWithGradient();
+    pic.dither(DitherAlgo::FLOYD_STEINBERG, 4);
     pic.write("new.pgm");
 }

@@ -67,7 +67,7 @@ void PNMPicture::write(ofstream& outputFile) {
 void PNMPicture::fillWithGradient() {
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            get(i, j) = correct((double) j / width * 255);
+            get(i, j) = correctColor((double) j / width * 255);
         }
     }
 }
@@ -78,10 +78,13 @@ void PNMPicture::dither(DitherAlgo algo, uchar bits) {
             ditherNone(bits);
             break;
         case ORDERED:
+            ditherOrdered(bits);
             break;
         case RANDOM:
+            ditherRandom(bits);
             break;
         case FLOYD_STEINBERG:
+            ditherFloydSteinberg(bits);
             break;
         case JJN:
             break;
@@ -99,21 +102,83 @@ void PNMPicture::dither(DitherAlgo algo, uchar bits) {
 void PNMPicture::ditherNone(uchar bits) {
     uchar maxValue = pow(2, bits) - 1;
 
-    double value;
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            value = undoCorrection(get(i, j)) / 255.0;
-            value *= maxValue;
-            value = round(value);
-            get(i, j) = round(correct(value * 255 / maxValue));
+            double value = undoColorCorrection(get(i, j)) / 255.0;
+
+            value = min(max(value, 0.0), 1.0);
+
+            double newPaletteColor = round(value * maxValue);
+            get(i, j) = correctColor(newPaletteColor / maxValue * 255);
         }
     }
 }
 
 void PNMPicture::ditherOrdered(uchar bits) {
+    uchar maxValue = pow(2, bits) - 1;
+
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
+            double picColorSRGB = get(i, j) / 255.0;
+            double picColorLinear = undoValueCorrection(picColorSRGB);
+            double value = picColorLinear + (orderedMatrix[i % 8][j % 8] - 0.5) / bits;
 
+            value = min(max(value, 0.0), 1.0);
+
+            double newPaletteColor = round(value * maxValue);
+            get(i, j) = correctColor(newPaletteColor / maxValue * 255);
+        }
+    }
+}
+
+void PNMPicture::ditherRandom(uchar bits) {
+    uchar maxValue = pow(2, bits) - 1;
+
+    srand(time(NULL));
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            double picColorSRGB = get(i, j) / 255.0;
+            double picColorLinear = undoValueCorrection(picColorSRGB);
+            double noise =  (double) rand() / RAND_MAX - 0.75;
+            double value = picColorLinear + noise / bits;
+
+            value = min(max(value, 0.0), 1.0);
+
+            double newPaletteColor = round(value * maxValue);
+            get(i, j) = correctColor(newPaletteColor / maxValue * 255);
+        }
+    }
+}
+
+void PNMPicture::ditherFloydSteinberg(uchar bits) {
+    uchar maxValue = pow(2, bits) - 1;
+
+    vector<double> errors(height * width, 0);
+    auto getError = [&](int h, int w) -> double& {
+        return errors[h * width + w];
+    };
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            double picColorSRGB = get(i, j) / 255.0;
+            double picColorLinear = undoValueCorrection(picColorSRGB);
+            double value = picColorLinear + getError(i, j) / 255.0;
+            value = min(max(value, 0.0), 1.0);
+
+            double newPaletteColor = round(value * maxValue);
+            get(i, j) = correctColor(newPaletteColor / maxValue * 255);
+
+            double error = get(i, j) + getError(i, j) - newPaletteColor / (double) maxValue * 255.0;
+
+            if (j + 1 < height)
+                getError(i, j + 1) = error * 7.0 / 16.0;
+            if (i + 1 < height && j + 1 < height)
+                getError(i + 1, j + 1) = error * 1.0 / 16.0;
+            if (i + 1 < height)
+                getError(i + 1, j) = error * 5.0 / 16.0;
+            if (i + 1 < height && j - 1 >= 0)
+                getError(i + 1, j - 1) = error * 3.0 / 16.0;
         }
     }
 }
@@ -124,16 +189,24 @@ uchar& PNMPicture::get(int h, int w) {
     return data[width * h + w];
 }
 
-uchar PNMPicture::undoCorrection(uchar color) {
+uchar PNMPicture::undoColorCorrection(uchar color) {
     double colorSRGB = color / 255.0;
-    double colorLinear = colorSRGB <= 0.04045 ? colorSRGB / 12.92 : pow((colorSRGB + 0.055) / 1.055, 2.4);
+    double colorLinear = undoValueCorrection(colorSRGB);
     return colorLinear * 255;
 }
 
-uchar PNMPicture::correct(uchar color) {
+double PNMPicture::undoValueCorrection(double k) {
+    return k <= 0.04045 ? k / 12.92 : pow((k + 0.055) / 1.055, 2.4);
+}
+
+uchar PNMPicture::correctColor(uchar color) {
     double colorLinear = color / 255.0;
-    double colorSRGB = colorLinear <= 0.0031308 ? 12.92 * colorLinear : 1.055 * pow(colorLinear, 1 / 2.4) - 0.055;
+    double colorSRGB = correctValue(colorLinear);
     return colorSRGB * 255;
+}
+
+double PNMPicture::correctValue(double k) {
+    return k <= 0.0031308 ? 12.92 * k : 1.055 * pow(k, 1 / 2.4) - 0.055;
 }
 
 

@@ -85,7 +85,9 @@ private:
     void ditherAtkinson(uchar bits);
     void ditherHalftone(uchar bits);
 
-    uchar undoCorrection(uchar color);
-    uchar correct(uchar color);
+    static uchar undoColorCorrection(uchar color);
+    static double undoValueCorrection(double k);
+    static uchar correctColor(uchar color);
+    static double correctValue(double k);
 
 };
