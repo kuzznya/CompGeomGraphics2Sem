@@ -31,6 +31,13 @@ const int matrixAtkinson[3][5] = {
         {0, 0, 1, 0, 0}
 };
 
+const double halftoneMatrix[4][4] = {
+        {13.0 / 16.0, 11.0 / 16.0, 4.0 / 16.0, 8.0 / 16.0},
+        {6.0 / 16.0, 0, 3.0 / 16.0, 15.0 / 16.0},
+        {14.0 / 16.0, 1.0 / 16.0, 2.0 / 16.0, 7.0 / 16.0},
+        {9.0 / 16.0, 5.0 / 16.0, 10.0 / 16.0, 12.0 / 16.0},
+};
+
 PNMPicture::PNMPicture() = default;
 PNMPicture::PNMPicture(string filename) {
     read(filename);
@@ -307,6 +314,23 @@ void PNMPicture::ditherAtkinson(uchar bits) {
                     getError(i + ie, j + (je - 2)) += error * matrixAtkinson[ie][je] / 8.0;
                 }
             }
+        }
+    }
+}
+
+void PNMPicture::ditherHalftone(uchar bits) {
+    uchar maxValue = pow(2, bits) - 1;
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            double picColorSRGB = get(i, j) / 255.0;
+            double picColorLinear = undoValueCorrection(picColorSRGB);
+            double value = picColorLinear + (halftoneMatrix[i % 4][j % 4] - 0.75) / bits;
+            value = min(max(value, 0.0), 1.0);
+
+            double newPaletteColor = round(value * maxValue);
+
+            get(i, j) = round(newPaletteColor / maxValue * 255);
         }
     }
 }
