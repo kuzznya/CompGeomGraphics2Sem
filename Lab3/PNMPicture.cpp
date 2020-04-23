@@ -114,6 +114,7 @@ void PNMPicture::dither(DitherAlgo algo, uchar bits) {
             ditherAtkinson(bits);
             break;
         case HALFTONE:
+            ditherHalftone(bits);
             break;
         default:
             throw ExecutionException();
@@ -184,7 +185,7 @@ void PNMPicture::ditherFloydSteinberg(uchar bits) {
         for (int j = 0; j < width; j++) {
             double picColorSRGB = get(i, j) / 255.0;
             double picColorLinear = undoValueCorrection(picColorSRGB);
-            double value = (picColorLinear + getError(i, j)) / 255.0;
+            double value = picColorLinear + getError(i, j) / 255.0;
             value = min(max(value, 0.0), 1.0);
 
             double newPaletteColor = round(value * maxValue);
@@ -217,7 +218,7 @@ void PNMPicture::ditherJJN(uchar bits) {
         for (int j = 0; j < width; j++) {
             double picColorSRGB = get(i, j) / 255.0;
             double picColorLinear = undoValueCorrection(picColorSRGB);
-            double value = (picColorLinear + getError(i, j)) / 255.0;
+            double value = picColorLinear + getError(i, j) / 255.0;
             value = min(max(value, 0.0), 1.0);
 
             double newPaletteColor = round(value * maxValue);
@@ -252,7 +253,7 @@ void PNMPicture::ditherSierra(uchar bits) {
         for (int j = 0; j < width; j++) {
             double picColorSRGB = get(i, j) / 255.0;
             double picColorLinear = undoValueCorrection(picColorSRGB);
-            double value = (picColorLinear + getError(i, j)) / 255.0;
+            double value = picColorLinear + getError(i, j) / 255.0;
             value = min(max(value, 0.0), 1.0);
 
             double newPaletteColor = round(value * maxValue);
@@ -287,7 +288,7 @@ void PNMPicture::ditherAtkinson(uchar bits) {
         for (int j = 0; j < width; j++) {
             double picColorSRGB = get(i, j) / 255.0;
             double picColorLinear = undoValueCorrection(picColorSRGB);
-            double value = (picColorLinear + getError(i, j)) / 255.0;
+            double value = picColorLinear + getError(i, j) / 255.0;
             value = min(max(value, 0.0), 1.0);
 
             double newPaletteColor = round(value * maxValue);
