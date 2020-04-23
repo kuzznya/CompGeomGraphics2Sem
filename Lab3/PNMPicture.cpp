@@ -97,39 +97,39 @@ void PNMPicture::fillWithGradient() {
     }
 }
 
-void PNMPicture::dither(DitherAlgo algo, uchar bits) {
+void PNMPicture::dither(DitherAlgo algo, uchar bitRate) {
     switch (algo) {
         case NONE:
-            ditherNone(bits);
+            ditherNone(bitRate);
             break;
         case ORDERED:
-            ditherOrdered(bits);
+            ditherOrdered(bitRate);
             break;
         case RANDOM:
-            ditherRandom(bits);
+            ditherRandom(bitRate);
             break;
         case FLOYD_STEINBERG:
-            ditherFloydSteinberg(bits);
+            ditherFloydSteinberg(bitRate);
             break;
         case JJN:
-            ditherJJN(bits);
+            ditherJJN(bitRate);
             break;
         case SIERRA:
-            ditherSierra(bits);
+            ditherSierra(bitRate);
             break;
         case ATKINSON:
-            ditherAtkinson(bits);
+            ditherAtkinson(bitRate);
             break;
         case HALFTONE:
-            ditherHalftone(bits);
+            ditherHalftone(bitRate);
             break;
         default:
             throw ExecutionException();
     }
 }
 
-void PNMPicture::ditherNone(uchar bits) {
-    uchar maxValue = pow(2, bits) - 1;
+void PNMPicture::ditherNone(uchar bitRate) {
+    uchar maxValue = pow(2, bitRate) - 1;
 
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
@@ -143,14 +143,14 @@ void PNMPicture::ditherNone(uchar bits) {
     }
 }
 
-void PNMPicture::ditherOrdered(uchar bits) {
-    uchar maxValue = pow(2, bits) - 1;
+void PNMPicture::ditherOrdered(uchar bitRate) {
+    uchar maxValue = pow(2, bitRate) - 1;
 
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             double picColorSRGB = get(i, j) / 255.0;
             double picColorLinear = undoValueCorrection(picColorSRGB);
-            double value = picColorLinear + (orderedMatrix[i % 8][j % 8] - 0.5) / bits;
+            double value = picColorLinear + (orderedMatrix[i % 8][j % 8] - 0.5) / bitRate;
 
             value = min(max(value, 0.0), 1.0);
 
@@ -160,8 +160,8 @@ void PNMPicture::ditherOrdered(uchar bits) {
     }
 }
 
-void PNMPicture::ditherRandom(uchar bits) {
-    uchar maxValue = pow(2, bits) - 1;
+void PNMPicture::ditherRandom(uchar bitRate) {
+    uchar maxValue = pow(2, bitRate) - 1;
 
     srand(time(NULL));
 
@@ -170,7 +170,7 @@ void PNMPicture::ditherRandom(uchar bits) {
             double picColorSRGB = get(i, j) / 255.0;
             double picColorLinear = undoValueCorrection(picColorSRGB);
             double noise =  (double) rand() / RAND_MAX - 0.75;
-            double value = picColorLinear + noise / bits;
+            double value = picColorLinear + noise / bitRate;
 
             value = min(max(value, 0.0), 1.0);
 
@@ -180,8 +180,8 @@ void PNMPicture::ditherRandom(uchar bits) {
     }
 }
 
-void PNMPicture::ditherFloydSteinberg(uchar bits) {
-    uchar maxValue = pow(2, bits) - 1;
+void PNMPicture::ditherFloydSteinberg(uchar bitRate) {
+    uchar maxValue = pow(2, bitRate) - 1;
 
     vector<double> errors(height * width, 0);
     auto getError = [&](int h, int w) -> double& {
@@ -213,8 +213,8 @@ void PNMPicture::ditherFloydSteinberg(uchar bits) {
     }
 }
 
-void PNMPicture::ditherJJN(uchar bits) {
-    uchar maxValue = pow(2, bits) - 1;
+void PNMPicture::ditherJJN(uchar bitRate) {
+    uchar maxValue = pow(2, bitRate) - 1;
 
     vector<double> errors(height * width, 0);
     auto getError = [&](int h, int w) -> double& {
@@ -248,8 +248,8 @@ void PNMPicture::ditherJJN(uchar bits) {
     }
 }
 
-void PNMPicture::ditherSierra(uchar bits) {
-    uchar maxValue = pow(2, bits) - 1;
+void PNMPicture::ditherSierra(uchar bitRate) {
+    uchar maxValue = pow(2, bitRate) - 1;
 
     vector<double> errors(height * width, 0);
     auto getError = [&](int h, int w) -> double& {
@@ -283,8 +283,8 @@ void PNMPicture::ditherSierra(uchar bits) {
     }
 }
 
-void PNMPicture::ditherAtkinson(uchar bits) {
-    uchar maxValue = pow(2, bits) - 1;
+void PNMPicture::ditherAtkinson(uchar bitRate) {
+    uchar maxValue = pow(2, bitRate) - 1;
 
     vector<double> errors(height * width, 0);
     auto getError = [&](int h, int w) -> double& {
@@ -318,14 +318,14 @@ void PNMPicture::ditherAtkinson(uchar bits) {
     }
 }
 
-void PNMPicture::ditherHalftone(uchar bits) {
-    uchar maxValue = pow(2, bits) - 1;
+void PNMPicture::ditherHalftone(uchar bitRate) {
+    uchar maxValue = pow(2, bitRate) - 1;
 
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             double picColorSRGB = get(i, j) / 255.0;
             double picColorLinear = undoValueCorrection(picColorSRGB);
-            double value = picColorLinear + (halftoneMatrix[i % 4][j % 4] - 0.75) / bits;
+            double value = picColorLinear + (halftoneMatrix[i % 4][j % 4] - 0.75) / bitRate;
             value = min(max(value, 0.0), 1.0);
 
             double newPaletteColor = round(value * maxValue);

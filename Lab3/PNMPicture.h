@@ -11,28 +11,28 @@ typedef unsigned char uchar;
 
 class FileIOException : public exception {
 public:
-    const char* what() const _NOEXCEPT override {
+    const char* what() const noexcept override {
         return "Error while trying to read file or write to file";
     }
 };
 
 class UnsupportedFormatException : public exception {
 public:
-    const char* what() const _NOEXCEPT override {
+    const char* what() const noexcept override {
         return "Unsupported format of PNM file";
     }
 };
 
 class ExecutionException : public exception {
 public:
-    const char* what() const _NOEXCEPT override {
+    const char* what() const noexcept override {
         return "Failed to execute the command";
     }
 };
 
 class IndexOutOfBoundsException : public exception {
 public:
-    const char* what() const _NOEXCEPT override {
+    const char* what() const noexcept override {
         return "Index is out of bounds";
     }
 };
@@ -66,7 +66,7 @@ public:
 
     void fillWithGradient();
 
-    void dither(DitherAlgo algo, uchar bits);
+    void dither(DitherAlgo algo, uchar bitRate);
 
 private:
     short format;
@@ -76,14 +76,14 @@ private:
 
     uchar& get(int h, int w);
 
-    void ditherNone(uchar bits);
-    void ditherOrdered(uchar bits);
-    void ditherRandom(uchar bits);
-    void ditherFloydSteinberg(uchar bits);
-    void ditherJJN(uchar bits);
-    void ditherSierra(uchar bits);
-    void ditherAtkinson(uchar bits);
-    void ditherHalftone(uchar bits);
+    void ditherNone(uchar bitRate);
+    void ditherOrdered(uchar bitRate);
+    void ditherRandom(uchar bitRate);
+    void ditherFloydSteinberg(uchar bitRate);
+    void ditherJJN(uchar bitRate);
+    void ditherSierra(uchar bitRate);
+    void ditherAtkinson(uchar bitRate);
+    void ditherHalftone(uchar bitRate);
 
     static uchar undoColorCorrection(uchar color);
     static double undoValueCorrection(double k);
