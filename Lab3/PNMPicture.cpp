@@ -19,6 +19,12 @@ const double matrixJJN[3][5] = {
         {1.0 / 48.0, 3.0 / 48.0, 5.0 / 48.0, 3.0 / 48.0, 1.0 / 48.0}
 };
 
+const double matrixSierra3[3][5] = {
+        {0, 0, 0, 5.0 / 32.0, 3.0 / 32.0},
+        {2.0 / 32.0, 4.0/ 32.0, 5.0 / 32.0, 4.0 / 32.0, 2.0 / 32.0},
+        {0, 2.0 / 32.0, 3.0 / 32.0, 2.0 / 32.0, 0}
+};
+
 PNMPicture::PNMPicture() = default;
 PNMPicture::PNMPicture(string filename) {
     read(filename);
@@ -96,6 +102,7 @@ void PNMPicture::dither(DitherAlgo algo, uchar bits) {
             ditherJJN(bits);
             break;
         case SIERRA:
+            ditherSierra(bits);
             break;
         case ATKINSON:
             break;
@@ -220,6 +227,41 @@ void PNMPicture::ditherJJN(uchar bits) {
                         break;
 
                     getError(i + ie, j + (je - 2)) += error * matrixJJN[ie][je];
+                }
+            }
+        }
+    }
+}
+
+void PNMPicture::ditherSierra(uchar bits) {
+    uchar maxValue = pow(2, bits) - 1;
+
+    vector<double> errors(height * width, 0);
+    auto getError = [&](int h, int w) -> double& {
+        return errors[h * width + w];
+    };
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            double picColorSRGB = get(i, j) / 255.0;
+            double picColorLinear = undoValueCorrection(picColorSRGB);
+            double value = (picColorLinear + getError(i, j)) / 255.0;
+            value = min(max(value, 0.0), 1.0);
+
+            double newPaletteColor = round(value * maxValue);
+
+            double error = get(i, j) + getError(i, j) - newPaletteColor / (double) maxValue * 255.0;
+
+            get(i, j) = correctColor(newPaletteColor / maxValue * 255);
+
+            for (int ie = 0; ie < 3; ie++) {
+                for (int je = 0; je < 5; je++) {
+                    if (i + ie >= height || j + (je - 2) >= width || j + (je - 2) < 0)
+                        break;
+                    if (ie == 0 && je <= 2)
+                        break;
+
+                    getError(i + ie, j + (je - 2)) += error * matrixSierra3[ie][je];
                 }
             }
         }
