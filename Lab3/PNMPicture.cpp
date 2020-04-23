@@ -163,22 +163,23 @@ void PNMPicture::ditherFloydSteinberg(uchar bits) {
         for (int j = 0; j < width; j++) {
             double picColorSRGB = get(i, j) / 255.0;
             double picColorLinear = undoValueCorrection(picColorSRGB);
-            double value = picColorLinear + getError(i, j) / 255.0;
+            double value = (picColorLinear + getError(i, j)) / 255.0;
             value = min(max(value, 0.0), 1.0);
 
             double newPaletteColor = round(value * maxValue);
-            get(i, j) = correctColor(newPaletteColor / maxValue * 255);
 
             double error = get(i, j) + getError(i, j) - newPaletteColor / (double) maxValue * 255.0;
 
+            get(i, j) = correctColor(newPaletteColor / maxValue * 255);
+
             if (j + 1 < height)
-                getError(i, j + 1) = error * 7.0 / 16.0;
+                getError(i, j + 1) += error * 7.0 / 16.0;
             if (i + 1 < height && j + 1 < height)
-                getError(i + 1, j + 1) = error * 1.0 / 16.0;
+                getError(i + 1, j + 1) += error * 1.0 / 16.0;
             if (i + 1 < height)
-                getError(i + 1, j) = error * 5.0 / 16.0;
+                getError(i + 1, j) += error * 5.0 / 16.0;
             if (i + 1 < height && j - 1 >= 0)
-                getError(i + 1, j - 1) = error * 3.0 / 16.0;
+                getError(i + 1, j - 1) += error * 3.0 / 16.0;
         }
     }
 }
