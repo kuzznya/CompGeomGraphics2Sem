@@ -10,7 +10,13 @@ const double orderedMatrix[8][8] = {
         {2.0 / 64.0, 50.0 / 64.0, 14.0 / 64.0, 62.0 / 64.0, 1.0 / 64.0, 49.0 / 64.0, 13.0 / 64.0, 61.0 / 64.0},
         {34.0 / 64.0, 18.0 / 64.0, 46.0 / 64.0, 30.0 / 64.0, 33.0 / 64.0, 17.0 / 64.0, 45.0 / 64.0, 29.0 / 64.0},
         {10.0 / 64.0, 58.0 / 64.0, 6.0 / 64.0, 54.0 / 64.0, 9.0 / 64.0, 57.0 / 64.0, 5.0 / 64.0, 53.0 / 64.0},
-        {42.0 / 64.0, 26.0 / 64.0, 38.0 / 64.0, 22.0 / 64.0, 41.0 / 64.0, 25.0 / 64.0, 37.0 / 64.0, 21.0 / 64.0},
+        {42.0 / 64.0, 26.0 / 64.0, 38.0 / 64.0, 22.0 / 64.0, 41.0 / 64.0, 25.0 / 64.0, 37.0 / 64.0, 21.0 / 64.0}
+};
+
+const double matrixJJN[3][5] = {
+        {0, 0, 0, 7.0 / 48.0, 5.0 / 48.0},
+        {3.0 / 48.0, 5.0 / 48.0, 7.0 / 48.0, 5.0 / 48.0, 3.0 / 48.0},
+        {1.0 / 48.0, 3.0 / 48.0, 5.0 / 48.0, 3.0 / 48.0, 1.0 / 48.0}
 };
 
 PNMPicture::PNMPicture() = default;
@@ -87,6 +93,7 @@ void PNMPicture::dither(DitherAlgo algo, uchar bits) {
             ditherFloydSteinberg(bits);
             break;
         case JJN:
+            ditherJJN(bits);
             break;
         case SIERRA:
             break;
@@ -180,6 +187,41 @@ void PNMPicture::ditherFloydSteinberg(uchar bits) {
                 getError(i + 1, j) += error * 5.0 / 16.0;
             if (i + 1 < height && j - 1 >= 0)
                 getError(i + 1, j - 1) += error * 3.0 / 16.0;
+        }
+    }
+}
+
+void PNMPicture::ditherJJN(uchar bits) {
+    uchar maxValue = pow(2, bits) - 1;
+
+    vector<double> errors(height * width, 0);
+    auto getError = [&](int h, int w) -> double& {
+        return errors[h * width + w];
+    };
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            double picColorSRGB = get(i, j) / 255.0;
+            double picColorLinear = undoValueCorrection(picColorSRGB);
+            double value = (picColorLinear + getError(i, j)) / 255.0;
+            value = min(max(value, 0.0), 1.0);
+
+            double newPaletteColor = round(value * maxValue);
+
+            double error = get(i, j) + getError(i, j) - newPaletteColor / (double) maxValue * 255.0;
+
+            get(i, j) = correctColor(newPaletteColor / maxValue * 255);
+
+            for (int ie = 0; ie < 3; ie++) {
+                for (int je = 0; je < 5; je++) {
+                    if (i + ie >= height || j + (je - 2) >= width || j + (je - 2) < 0)
+                        break;
+                    if (ie == 0 && je <= 2)
+                        break;
+
+                    getError(i + ie, j + (je - 2)) += error * matrixJJN[ie][je];
+                }
+            }
         }
     }
 }
