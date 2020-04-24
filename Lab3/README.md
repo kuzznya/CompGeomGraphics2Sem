@@ -33,26 +33,26 @@
 
 Преобразование в 1-битную палитру (ч/б)
 
-0 - без дизеринга
-![Без дизеринга](./img/png/0.png)
+0 - без дизеринга  
+  ![Без дизеринга](./img/png/0.png)
 
-1 - Ordered (8x8)
-![1](./img/png/1.png)
+1 - Ordered (8x8)  
+  ![1](./img/png/1.png)
 
-2 - Random
-![2](./img/png/2.png)
+2 - Random  
+  ![2](./img/png/2.png)
 
-3 - Floyd-Steinberg
-![3](./img/png/3.png)
+3 - Floyd-Steinberg  
+  ![3](./img/png/3.png)
 
-4 - Jarvis, Judice, Ninke
-![4](./img/png/4.png)
+4 - Jarvis, Judice, Ninke  
+  ![4](./img/png/4.png)
 
-5 - Sierra (Sierra-3)
-![5](./img/png/5.png)
+5 - Sierra (Sierra-3)  
+  ![5](./img/png/5.png)
 
-6 - Atkinson
-![6](./img/png/6.png)
+6 - Atkinson  
+  ![6](./img/png/6.png)
 
-7 - Halftone (4x4, orthogonal)
-![7](./img/png/7.png)
+7 - Halftone (4x4, orthogonal)  
+  ![7](./img/png/7.png)
