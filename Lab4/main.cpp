@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
             std::string inputFile2 = inputFile;
             inputFile2.insert(inputFile2.size() - 4, "_2");
             std::string inputFile3 = inputFile;
-            inputFile3.insert(inputFile1.size() - 4, "_3");
+            inputFile3.insert(inputFile3.size() - 4, "_3");
             picture.read(inputFile1, inputFile2, inputFile3);
         } else
             picture.read(inputFile);

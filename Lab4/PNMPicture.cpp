@@ -175,6 +175,9 @@ void PNMPicture::readP5(std::ifstream& inputFile, ColorChannelName colorToRead) 
 
     inputFile.get();
 
+    if (data.size() != width * height)
+        data.resize(width * height);
+
     uchar* buffer = new uchar[width * height];
     inputFile.read((char*) buffer, width * height);
     for (int i = 0; i < width * height; i++) {
@@ -268,37 +271,92 @@ void PNMPicture::writeP6(std::ofstream& outputFile) {
 }
 
 void PNMPicture::convertFromHSL() {
-    auto f = [](double H, double S, double L, int n) -> double {
-        double k = fmod((n + H / 30.0), 12);
-        double alpha = S * std::min(L, 1 - L);
-        return L - alpha * std::max(-1.0, std::min(std::min(k - 3.0, 9.0 - k), 1.0));
-    };
-
     for (auto& value : data) {
         double H = value.A / 255.0 * 360.0;
         double S = value.B / 255.0;
         double L = value.C / 255.0;
 
-        value.A = f(H, S, L, 0) * 255;
-        value.B = f(H, S, L, 8) * 255;
-        value.C = f(H, S, L, 4) * 255;
+        double H_D = H/ 60;
+        double C = (1 - abs(2 * L - 1)) * S;
+        double X = C * (1 - abs(fmod(H_D, 2) - 1));
+        double m = L - C / 2.0;
+
+        m *= 255.0;
+        if ((H_D >= 0) && (H_D <= 1)) {
+            value.A = C * 255.0 + m;
+            value.B = X * 255.0 + m;
+            value.C = 0 + m;
+        }
+        if ((H_D > 1) && (H_D <= 2)) {
+            value.A = X * 255.0 + m;
+            value.B = C * 255.0 + m;
+            value.C = 0 + m;
+        }
+        if ((H_D > 2) && (H_D <= 3)) {
+            value.A = 0 + m;
+            value.B = C * 255.0 + m;
+            value.C = X * 255.0 + m;
+        }
+        if ((H_D > 3) && (H_D <= 4)) {
+            value.A = 0 + m;
+            value.B = X * 255.0 + m;
+            value.C = C * 255.0 + m;
+        }
+        if ((H_D > 4) && (H_D <= 5)) {
+            value.A = X * 255.0 + m;
+            value.B = 0 + m;
+            value.C = C * 255.0 + m;
+        }
+        if ((H_D > 5) && (H_D <= 6)) {
+            value.A = C * 255.0 + m;
+            value.B = 0 + m;
+            value.C = X * 255.0 + m;
+        }
     }
 }
 
 void PNMPicture::convertFromHSV() {
-    auto f = [](double H, double S, double V, int n) -> double {
-        double k = fmod((n + H / 60.0), 6);
-        return V - V * S * std::max(0.0, std::min(std::min(k, 4 - k), 1.0));
-    };
-
     for (auto& value : data) {
         double H = value.A / 255.0 * 360.0;
         double S = value.B / 255.0;
-        double V = value.C / 255.0;
+        double L = value.C / 255.0;
 
-        value.A = f(H, S, V, 5);
-        value.B = f(H, S, V, 3);
-        value.C = f(H, S, V, 1);
+        double H_D = H/ 60;
+        double C = S * L;
+        double X = C * (1.0 - abs(fmod(H_D, 2) - 1.0));
+        double m = L - C;
+
+        m *= 255.0;
+        if ((H_D >= 0) && (H_D <= 1)) {
+            value.A = C * 255.0 + m;
+            value.B = X * 255.0 + m;
+            value.C = 0 + m;
+        }
+        if ((H_D > 1) && (H_D <= 2)) {
+            value.A = X * 255.0 + m;
+            value.B = C * 255.0 + m;
+            value.C = 0 + m;
+        }
+        if ((H_D > 2) && (H_D <= 3)) {
+            value.A = 0 + m;
+            value.B = C * 255.0 + m;
+            value.C = X * 255.0 + m;
+        }
+        if ((H_D > 3) && (H_D <= 4)) {
+            value.A = 0 + m;
+            value.B = X * 255.0 + m;
+            value.C = C * 255.0 + m;
+        }
+        if ((H_D > 4) && (H_D <= 5)) {
+            value.A = X * 255.0 + m;
+            value.B = 0 + m;
+            value.C = C * 255.0 + m;
+        }
+        if ((H_D > 5) && (H_D <= 6)) {
+            value.A = C * 255.0 + m;
+            value.B = 0 + m;
+            value.C = X * 255.0 + m;
+        }
     }
 }
 
@@ -397,7 +455,7 @@ void PNMPicture::convertToHSL() {
         double V = Xmax;
         double Xmin = std::min(std::min(R, G), B);
         double C = Xmax - Xmin;
-        double L = (Xmax + Xmin) / 2.0;
+        double L = V - C / 2.0;
 
         double H = 0;
         if (C == 0)
@@ -410,12 +468,12 @@ void PNMPicture::convertToHSL() {
             H = 60.0 * (4.0 + (R - G) / C);
 
         double S;
-        if (L < 0.000001 || L > 0.00009)
+        if (L == 0 || L == 1)
             S = 0;
         else
             S = (V - L) / std::min(L, 1.0 - L);
 
-        value.A = H * 255;
+        value.A = (H / 360.0) * 255;
         value.B = S * 255;
         value.C = L * 255;
     }
@@ -431,7 +489,7 @@ void PNMPicture::convertToHSV() {
         double V = Xmax;
         double Xmin = std::min(std::min(R, G), B);
         double C = Xmax - Xmin;
-        double L = (Xmax + Xmin) / 2.0;
+        double L = V - C / 2.0;
 
         double H = 0;
         if (C == 0)
@@ -449,7 +507,7 @@ void PNMPicture::convertToHSV() {
         else
             S = C / V;
 
-        value.A = H * 255;
+        value.A = (H / 360.0) * 255;
         value.B = S * 255;
         value.C = V * 255;
     }
@@ -500,9 +558,11 @@ void PNMPicture::convertToYCoCg() {
         double R = value.A / 255.0;
         double G = value.B / 255.0;
         double B = value.C / 255.0;
+
         double Y = R / 4 + G / 2 + B / 4;
         double Co = R / 2 - B / 2;
         double Cg = -R / 4 + G / 2 - B / 4;
+
         value.A = Y * 255.0;
         value.B = (Co + 0.5) * 255;
         value.C = (Cg + 0.5) * 255;
