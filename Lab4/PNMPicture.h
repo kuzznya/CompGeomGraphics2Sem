@@ -7,14 +7,14 @@
 
 typedef unsigned char uchar;
 
-struct RGB {
-    uchar R;
-    uchar G;
+struct ColorChannel {
+    uchar A;
     uchar B;
+    uchar C;
 };
 
-enum colorRGB {
-    R, G, B
+enum ColorChannelName {
+    A, B, C
 };
 
 enum ColorSpace {
@@ -51,7 +51,8 @@ public:
 class PNMPicture {
 public:
     PNMPicture();
-    explicit PNMPicture(std::string fileName);
+    explicit PNMPicture(const std::string& fileName);
+    explicit PNMPicture(const std::string& file1Name, const std::string& file2Name, const std::string& file3Name);
 
     void read(const std::string& fileName);
     void read(std::ifstream& inputFile);
@@ -65,17 +66,19 @@ public:
 
     void convert(ColorSpace from, ColorSpace to);
 
+    void setCurrentColorSpace(ColorSpace cs);
     void printInfo();
 
 private:
     int width, height;
     int colors;
-    std::vector<RGB> data;
+    std::vector<ColorChannel> data;
+    ColorSpace curColorSpace;
 
-    void readP5(std::ifstream& inputFile, colorRGB colorToRead);
+    void readP5(std::ifstream& inputFile, ColorChannelName colorToRead);
     void readP6(std::ifstream& inputFile);
 
-    void writeP5(std::ofstream& outputFile, colorRGB colorToWrite);
+    void writeP5(std::ofstream& outputFile, ColorChannelName colorToWrite);
     void writeP6(std::ofstream& outputFile);
 
     void convertFromHSL();
